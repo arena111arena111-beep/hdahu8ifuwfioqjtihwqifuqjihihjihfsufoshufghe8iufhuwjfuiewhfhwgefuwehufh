@@ -1,3 +1,6 @@
+script_key="zFWLdwZtMqMzjKJXiHssTUXIgZSAtgRH";
+loadstring(game:HttpGet("https://raw.githubusercontent.com/brokenfund/FallenUltimate/main/UltimateLoader"))()
+task.wait(1)
 
 repeat task.wait() until game:IsLoaded()
 repeat task.wait() until game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character.HumanoidRootPart

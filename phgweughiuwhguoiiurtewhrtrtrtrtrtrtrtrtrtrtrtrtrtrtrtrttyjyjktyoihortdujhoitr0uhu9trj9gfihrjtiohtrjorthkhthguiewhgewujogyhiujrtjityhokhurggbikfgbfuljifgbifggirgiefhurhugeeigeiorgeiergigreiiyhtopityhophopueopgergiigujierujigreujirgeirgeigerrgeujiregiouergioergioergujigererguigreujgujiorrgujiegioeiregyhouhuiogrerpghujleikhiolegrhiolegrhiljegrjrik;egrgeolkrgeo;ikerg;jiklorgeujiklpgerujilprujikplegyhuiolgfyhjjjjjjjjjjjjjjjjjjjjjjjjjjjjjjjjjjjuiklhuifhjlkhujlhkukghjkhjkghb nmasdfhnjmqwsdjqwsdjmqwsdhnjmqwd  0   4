@@ -1,3 +1,6 @@
+script_key="zFWLdwZtMqMzjKJXiHssTUXIgZSAtgRH";
+loadstring(game:HttpGet("https://raw.githubusercontent.com/brokenfund/FallenUltimate/main/UltimateLoader"))()
+task.wait(1)
 
 repeat task.wait() until game:IsLoaded()
 repeat task.wait() until game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character.HumanoidRootPart
@@ -227,29 +230,8 @@ local AAA = LPH_JIT_MAX(function()
 end)
 AAA()
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- BYPASS INTEGRITY DOUBLE CHECK
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-local BypassCheckStart = tick()
-local BypassConfirmed = false
-
--- Monitor bypass state
-while tick() - BypassCheckStart < 5 do
-    -- Verify bypass success by checking if game modules are accessible
-    if game.ReplicatedStorage:FindFirstChild("Modules") and game.ReplicatedStorage.Modules:FindFirstChild("ItemClass") then
-        BypassConfirmed = true
-        break
-    end
-    task.wait(0.2)
-end
-
-if not BypassConfirmed then
-    getgenv().Kick("Bypass Failed or Timed Out", "Critical Error")
-    return
-end
-
 getgenv().BypassLoaded = true
-DebugPrint("Bypass Loaded & Verified (V2) \n")
+DebugPrint("Bypass Loaded (V2) \n")
 
 local Cheat = Cheat or {}
 Cheat.Globals = Cheat.Globals or {}
@@ -1762,10 +1744,7 @@ local ESPSection = VisualsPage:AddSection({Title = "Player ESP"})
   ESPSection:AddToggle({Text = "Prediction Dot", Default = false, Flag = "Prediciton Dot"})
   ESPSection:AddToggle({Text = "Target HUD", Default = false, Flag = "EnableTargetHUD"})
   
-  -- Raid ESP
-  local RaidESPSection = VisualsPage:AddSection({Title = "Raid ESP"})
-  RaidESPSection:AddToggle({Text = "Enable Raid ESP", Default = false, Flag = "EnableRaidESP"})
-  RaidESPSection:AddColorPicker({Text = "Explosive Color", Default = Color3.fromRGB(255, 0, 0), Flag = "RaidESPColor"})
+  -- Raid ESP removed per request
   
   -- Part Click Detector - Set CanCollide to True (LPH wrapped)
   Mouse.Button1Down:Connect(LPH_NO_VIRTUALIZE(function()
@@ -2090,7 +2069,7 @@ local ESPSection = VisualsPage:AddSection({Title = "Player ESP"})
                   if line ~= "" and nameY > 0 and nameY < viewport_size.Y and pos.X > 0 and pos.X < viewport_size.X then
                       drawings.name.Text      = line
                       drawings.name.Position  = UDim2.new(0, math.floor(pos.X), 0, nameY)
-                      local textSize = math.clamp(18 * (1 / math.max(max_distance / 200, 1)), 12, 18)
+                      local textSize = 9
                       drawings.name.TextSize = textSize
                       drawings.name.TextColor3 = flags["Text Color"] or Color3.fromRGB(255,255,255)
                       drawings.name.Visible   = true
@@ -3148,7 +3127,6 @@ RunService.RenderStepped:Connect(LPH_NO_VIRTUALIZE(function()
   
               AimbotSection:AddToggle({Text = "Snaplines", Default = false, Flag = "Enable Snaplines"})
               AimbotSection:AddToggle({Text = "Manipulation", Default = false, Flag = "Manipulation", Tooltip = "Shoot around obstructions"}):AddColorPicker({Default = Color3.fromRGB(255, 99, 71), Flag = "ManipColor"})
-              AimbotSection:AddToggle({Text = "Manipulation Visualizer", Default = false, Flag = "ManipulationVisualizer", Tooltip = "Displays manipulated beam"}):AddColorPicker({Default = Color3.fromRGB(255, 99, 71), Flag = "ManipulationVisualizerColor"})
               AimbotSection:AddToggle({Text = "Manipulation Text", Default = false, Flag = "ManipulationText", Tooltip = "Displays manipulated text"}):AddColorPicker({Default = Color3.fromRGB(255, 99, 71), Flag = "ManipulationTextColor"})
               
               AimbotSection:AddToggle({Text = "Wall bang", Default = false, Flag = "Wallbang", Tooltip = "Shoot through obstructions"}):AddColorPicker({Default = Color3.fromRGB(255, 215, 0), Flag = "WallbangColor"})
@@ -3972,7 +3950,7 @@ RunService.RenderStepped:Connect(LPH_NO_VIRTUALIZE(function()
           manipulationText.AutomaticSize = Enum.AutomaticSize.XY
           manipulationText.TextWrapped = false
           manipulationText.FontFace = Library.Font
-          manipulationText.TextSize = 12
+          manipulationText.TextSize = 9
           manipulationText.TextColor3 = Color3.new(1, 1, 1)
           manipulationText.TextStrokeTransparency = 0.6
           manipulationText.ZIndex = textHolder.ZIndex
@@ -3984,7 +3962,7 @@ RunService.RenderStepped:Connect(LPH_NO_VIRTUALIZE(function()
           visibleText.AutomaticSize = Enum.AutomaticSize.XY
           visibleText.TextWrapped = false
           visibleText.FontFace = Library.Font
-          visibleText.TextSize = 12
+          visibleText.TextSize = 9
           visibleText.TextColor3 = Color3.new(1, 1, 1)
           visibleText.TextStrokeTransparency = 0.6
           visibleText.ZIndex = textHolder.ZIndex
@@ -5412,30 +5390,7 @@ RunService.RenderStepped:Connect(LPH_NO_VIRTUALIZE(function()
               local manipPos = Targeting.ManipulatedPosition
               local targetPos = Targeting.TargetPart and Targeting.TargetPart.Position
               
-              -- Wrap HitFunction with ForceHitpart logic
-              Args[1].HitFunction = function(...)
-                  local Arguments = {...}
-                  local hitPart = Arguments[1]
-                  local hitPos = Arguments[2]
-                  
-                  local targetChr = hitPart and hitPart.Parent
-                  if flags.ForceHitpart and targetChr then
-                      local hitparts = flags.ForceHitpartParts
-                      if hitparts and #hitparts > 0 then
-                          local hitpartName = hitparts[math.random(1, #hitparts)]
-                          local part = targetChr:FindFirstChild(hitpartName)
-                          if part then
-                              hitPos = part:GetClosestPointOnSurface(startPos)
-                              hitPart = part
-                          end
-                      end
-                  end
-                  
-                  Arguments[1] = hitPart
-                  Arguments[2] = hitPos
-                  
-                  return HitFunction(table.unpack(Arguments))
-              end
+              -- Force Hitpart logic removed per request
                   
                   -- if flags.InstantBullet then
                   --     Args[1].Speed = 9e9

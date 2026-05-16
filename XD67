@@ -1,0 +1,135 @@
+local ok = ...;
+
+if getgenv().acloaded or not getgenv().altcontrol then
+    return
+end
+
+if not getgenv().request then return end
+
+getgenv().yo = true
+getgenv().acloaded = true
+getgenv().__guns = {}
+
+if not getgenv().altowners then
+    getgenv().altowners = {}
+end
+
+if (not hookfunction and isfunctionhooked) or (hookfunction and not isfunctionhooked) or (hookfunction and not restorefunction) or (isfunctionhooked and not restorefunction) then
+    while true do end
+    return
+end
+
+
+local cloneref = cloneref or function(service) return service end
+local httpservice = game:GetService('HttpService')
+
+--> [files]
+
+if not isfolder('altcontrol') then
+    makefolder('altcontrol')
+end
+
+for i, v in {'custom', 'fonts', 'sounds', 'assets'} do
+    local h = 'altcontrol/'..v
+    if not isfolder(h) then
+        makefolder(h)
+    end
+end
+
+--> [logger]
+local logger = {};
+
+logger.print = function(msg)
+    task.spawn(print, `[alt control] {msg}`);
+end;
+
+logger.warn = function(msg)
+    task.spawn(warn, `[alt control] {msg}`);
+end;
+
+logger.error = function(msg)
+    task.spawn(error, `[alt control] {msg}`);
+end;
+
+--> [custom request]
+
+if not load then
+    load = loadstring
+end
+
+local safeload = loadstring or load or function() return function() end end
+
+local safehttpget = function(url)
+    return game:HttpGet(url)
+end
+
+--> [encryption]
+
+-- ALT CONTROL DEVS: REMOVED ENCRYPTION.
+
+--> [kill switch]
+local killed = safehttpget('https://unemployed.altcontrol.club/killswitch.json');
+local val = httpservice:JSONDecode(killed)
+
+if val.altcontrol == true then
+    cloneref(game:GetService('Players')).LocalPlayer:Kick('The script is disabled.');
+    return;
+end;
+
+--> [compiler]
+local compiler_res = safehttpget('https://unemployed.altcontrol.club/paths.json')
+local compiler_json = httpservice:JSONDecode(compiler_res)
+
+local package = {}
+local api
+
+if ok and ok.Developer then
+    api = loadfile('altcontrol/api.lua')()
+else
+    local res = safehttpget('https://unemployed.altcontrol.club/api.lua');
+    local decrypted = enc.decrypt(detectandreverse(res));
+    api = safeload(decrypted)();
+end
+
+for i, v in api do
+    package[i] = v
+end
+
+for _, v in compiler_json do
+    if not v then
+        continue
+    end
+    if ok and ok.Developer then continue end
+
+    local res = safehttpget(`https://unemployed.altcontrol.club/modules/`..v)
+    if not res then
+        logger.error(`Failed to load a module. ({v:gsub('.lua', '')})`);
+        continue
+    end
+
+    local decrypted = enc.decrypt(detectandreverse(res));
+    if decrypted and decrypted ~= '' then
+        local chunk, err = safeload(decrypted)
+        if chunk then
+            task.spawn(chunk, package)
+        else
+            warn(`[altcontrol] Failure loading {v}: {err}`)
+        end
+    end
+end
+
+local customfiles = listfiles('altcontrol/custom');
+if customfiles and not ok.IgnoreCustomFiles then
+    for i, v in customfiles do
+        v = v:gsub('\\', '/')
+        local file = isfile(v) and readfile(v) or nil;
+        if file and file ~= '' then
+            local chunk, err = safeload(file)
+            if chunk then
+                task.spawn(chunk, package)
+            else
+                warn(`[altcontrol] Failure loading {v}: {err}`)
+            end
+        end
+    end
+end
